@@ -402,13 +402,13 @@ footer .brand{color:#fff;font-size:20px}
   function cloth(){ return M(rbox(.18,.04,.14,.02), mat('#FFC531')); }
 
   const WORK = [
-    {key:'livreur', who:person({top:'#2B4DFF', pants:'#1F2552', skin:'#D9A27E', cap:'#FFC531'}), veh:vehicle('van','#2B4DFF',{box:'#FFFFFF', tex:weyoSide})},
     {key:'monteur', who:person({top:'#E8742C', pants:'#2F3B5C', skin:'#8D5A3B', cap:'#2F3B5C'}), carry:toolbox(), veh:vehicle('van','#E8742C',{stripe:'#2F3B5C'})},
     {key:'electricien', who:person({top:'#3D4A66', pants:'#2A3048', skin:'#E6B793', helmet:'#FFFFFF', vest:'#D7F542'}), carry:ladder(), veh:vehicle('van','#F4F4F6',{stripe:'#FFC531'})},
     {key:'peintre', who:person({top:'#F1F1F4', pants:'#E6E6EC', skin:'#C98E6B', cap:'#2B4DFF'}), carry:roller(), veh:vehicle('car','#9FB8E8')},
     {key:'jardinier', who:person({top:'#4E8A4B', pants:'#6B5638', skin:'#E0AD8A', sunhat:'#D9B86C'}), carry:trimmer(), veh:vehicle('pickup','#4E8A4B')},
     {key:'menage', who:person({top:'#22B7C9', pants:'#2A3060', skin:'#7A4B33', hair:'#2A1C14'}), carry:bucket('#2B4DFF'), veh:vehicle('car','#22B7C9')}
   ];
+  const IDX = {}; WORK.forEach((w,i)=>IDX[w.key]=i);
   WORK.forEach(w=>{ scene.add(w.who.g); w.who.g.visible = false; if(w.carry) scene.add(w.carry); });
   const paintBucket = bucket('#C9D6FF'); paintBucket.position.set(-1.0,.13,-1.85); apt.add(paintBucket);
   const rag = cloth(); scene.add(rag);
@@ -554,18 +554,18 @@ footer .brand{color:#fff;font-size:20px}
       else if(p < .56){ parcel.visible = true; parcel.position.copy(ch).add(new THREE.Vector3(0,.12,0)); parcel.rotation.y = CL.g.rotation.y; CL.armL.rotation.x = CL.armR.rotation.x = -1.1; }
       else if(p < .60){ const k = smooth(.56,.6,p); parcel.position.lerpVectors(ch.clone().add(new THREE.Vector3(0,.12,0)), new THREE.Vector3(-1.2,.65,1.42), k); CL.armL.rotation.x = CL.armR.rotation.x = -1.1*(1-k); }
       else { parcel.position.set(-1.2,.65,1.42); parcel.rotation.y = .3; }
-    } else { parcel.visible = true; parcel.position.set(-1.2,.65,1.42); parcel.rotation.y = .3; }
+    } else { parcel.visible = false; }
 
     // travaux
-    const m = done(1) ?? smooth(.56,.72,p);
+    const m = done(IDX.monteur) ?? smooth(.56,.72,p);
     carcass.scale.set(1, Math.max(.001, smooth(0,.6,m)), 1); carcass.visible = m>0;
     doorsW.visible = m > .65; doorsW.scale.setScalar(Math.max(.001, pop((m-.65)/.35)));
     flat.visible = m < .98; flat.scale.set(1, Math.max(.001, 1-m), 1);
-    const e = done(2) ?? smooth(.58,.66,p), eOn = done(2) ?? smooth(.68,.72,p);
+    const e = done(IDX.electricien) ?? smooth(.58,.66,p), eOn = done(IDX.electricien) ?? smooth(.68,.72,p);
     sconce.visible = e>0; sconce.scale.setScalar(Math.max(.001, pop(e)));
-    const pa = done(3) ?? smooth(.56,.73,p);
-    paint.scale.x = Math.max(.001, pa); tarp.visible = vi===3 && p > .5 && p < .78; paintBucket.visible = tarp.visible;
-    const me = done(5) ?? smooth(.56,.72,p);
+    const pa = done(IDX.peintre) ?? smooth(.56,.73,p);
+    paint.scale.x = Math.max(.001, pa); tarp.visible = vi===IDX.peintre && p > .5 && p < .78; paintBucket.visible = tarp.visible;
+    const me = done(IDX.menage) ?? smooth(.56,.72,p);
     dirt.material.opacity = 1 - me;
 
     if(W.carry){
@@ -588,10 +588,10 @@ footer .brand{color:#fff;font-size:20px}
         else { c.position.copy(hold).add(new THREE.Vector3(0,-.25,0)); c.rotation.set(0, who.g.rotation.y, 0); }
       }
     }
-    rag.visible = vi===5 && working;
+    rag.visible = vi===IDX.menage && working;
     rag.position.set(-2.9, 1.6 + Math.sin(rt*5)*.35, -.3 + Math.cos(rt*5)*.42); rag.rotation.set(0,0,Math.PI/2);
-    sprouts.forEach(s=>{ const reach = lin(.55,.64,p)*3.3 - 4.9 + .5; const cut = vi>4 ? 1 : vi<4 ? 0 : (s.position.x < reach ? 1 : 0); s.scale.y = lerp(s.userData.y || (s.userData.y = s.scale.y), .2, cut); s.visible = s.scale.y > .25; });
-    clips.forEach((c,i)=>{ const on = vi===4 && working; c.visible = on; if(on){ const t = (rt*1.3 + i/10)%1; c.position.set(who.g.position.x + .55 + Math.sin(i*7)*.2, 1.0 - t*.95, 3.75 + Math.cos(i*5)*.15); c.rotation.set(t*6, i, t*4); } });
+    sprouts.forEach(s=>{ const reach = lin(.55,.64,p)*3.3 - 4.9 + .5; const cut = vi>IDX.jardinier ? 1 : vi<IDX.jardinier ? 0 : (s.position.x < reach ? 1 : 0); s.scale.y = lerp(s.userData.y || (s.userData.y = s.scale.y), .2, cut); s.visible = s.scale.y > .25; });
+    clips.forEach((c,i)=>{ const on = vi===IDX.jardinier && working; c.visible = on; if(on){ const t = (rt*1.3 + i/10)%1; c.position.set(who.g.position.x + .55 + Math.sin(i*7)*.2, 1.0 - t*.95, 3.75 + Math.cos(i*5)*.15); c.rotation.set(t*6, i, t*4); } });
     const SPOT_AT = {monteur:[2.2,1.2,-2.1], electricien:[-.2,2.3,-2.4], peintre:[-1.9,1.5,-2.45], jardinier:[-3.2,.8,3.85], menage:[-2.95,1.6,-.3]};
     const sa = SPOT_AT[W.key], spot = (sa && p > .5 && p < .78) ? new THREE.Vector3(sa[0],sa[1],sa[2]) : null;
     return {vi, who, eOn, veh, spot};
@@ -614,7 +614,7 @@ footer .brand{color:#fff;font-size:20px}
   function size(){ R.setSize(innerWidth, innerHeight, false); }
   addEventListener('resize', size); size();
 
-  let rt = 0, L = reduce ? VISIT*1.62 : 0, last = performance.now(), sy = scrollY, ci = 0;
+  let rt = 0, L = reduce ? VISIT*(IDX.monteur+.62) : 0, last = performance.now(), sy = scrollY, ci = 0;
   const target = new THREE.Vector3(0,1,1); let camH = 6, first = true;
   const UP = V3(0,1,0);
   function frame(now){
