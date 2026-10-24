@@ -592,54 +592,64 @@ footer .brand{color:#fff;font-size:20px}
     rag.position.set(-2.9, 1.6 + Math.sin(rt*5)*.35, -.3 + Math.cos(rt*5)*.42); rag.rotation.set(0,0,Math.PI/2);
     sprouts.forEach(s=>{ const reach = lin(.55,.64,p)*3.3 - 4.9 + .5; const cut = vi>4 ? 1 : vi<4 ? 0 : (s.position.x < reach ? 1 : 0); s.scale.y = lerp(s.userData.y || (s.userData.y = s.scale.y), .2, cut); s.visible = s.scale.y > .25; });
     clips.forEach((c,i)=>{ const on = vi===4 && working; c.visible = on; if(on){ const t = (rt*1.3 + i/10)%1; c.position.set(who.g.position.x + .55 + Math.sin(i*7)*.2, 1.0 - t*.95, 3.75 + Math.cos(i*5)*.15); c.rotation.set(t*6, i, t*4); } });
-    return {vi, who, eOn};
+    const SPOT_AT = {monteur:[2.2,1.2,-2.1], electricien:[-.2,2.3,-2.4], peintre:[-1.9,1.5,-2.45], jardinier:[-3.2,.8,3.85], menage:[-2.95,1.6,-.3]};
+    const sa = SPOT_AT[W.key], spot = (sa && p > .5 && p < .78) ? new THREE.Vector3(sa[0],sa[1],sa[2]) : null;
+    return {vi, who, eOn, veh, spot};
   }
 
-  /* ---------- Caméras par section ---------- */
-  //            cible x, y, z        demi-hauteur  angle  soir
+  /* ---------- Caméra : elle cadre toujours l'action en cours ---------- */
+  // Chaque section change légèrement l'angle et la distance, mais la caméra calcule elle-même
+  // un cadrage qui contient le client, le prestataire, son véhicule et la zone de travail.
   const CAMS = [
-    {t:[-.2,.7,1.2],  hh:6.0, ang:.72, night:0},   // accueil : vue d'ensemble
-    {t:[-2.0,1.0,1.5], hh:2.9, ang:.95, night:0},  // avantages : le client
-    {t:null,          hh:3.6, ang:.72, night:0},   // comment ça marche : on suit le prestataire
-    {t:[-2.2,1.3,1.6], hh:2.4, ang:1.15, night:.1},// paiement : le client valide
-    {t:[0,.6,4.2],    hh:5.2, ang:.38, night:.25}, // prestataires : la rue
-    {t:[-.3,1,1.6],   hh:8.2, ang:.72, night:1}    // contact : le soir tombe
+    {ang:.72, bias:1.0,  over:1, street:0},  // accueil : tout l'appartement
+    {ang:.86, bias:.95,  over:0, street:0},  // avantages
+    {ang:.72, bias:1.0,  over:0, street:0},  // comment ça marche
+    {ang:.62, bias:.95,  over:0, street:0},  // paiement
+    {ang:.62, bias:1.0,  over:0, street:1},  // prestataires : on voit aussi la rue
+    {ang:.72, bias:1.0,  over:1, street:0}   // contact : vue d'ensemble
   ];
-  const follow = new THREE.Vector3(0,.9,1);
+  const V3 = (x,y,z)=>new THREE.Vector3(x,y,z);
+  const OVER = [V3(-3.1,0,-2.6),V3(3.1,0,-2.6),V3(-3.1,0,2.6),V3(3.1,0,2.6),V3(-3.1,3,-2.6),V3(3.1,3,-2.6),V3(-5.4,0,3.9),V3(3.6,0,4.6)];
+  const STREET = [V3(-1.5,0,6.7),V3(4.5,0,6.7),V3(1.8,0,2.6)];
   function size(){ R.setSize(innerWidth, innerHeight, false); }
   addEventListener('resize', size); size();
 
   let rt = 0, L = reduce ? VISIT*1.62 : 0, last = performance.now(), sy = scrollY, ci = 0;
-  const target = new THREE.Vector3();
-  const skyDay = [[248,241,230],[237,224,204]], skyNight = [[44,52,104],[24,28,64]];
+  const target = new THREE.Vector3(0,1,1); let camH = 6, first = true;
+  const UP = V3(0,1,0);
   function frame(now){
     const dt = Math.max(0, Math.min(.05,(now-last)/1000)) || 0; last = Math.max(last, now);
     if(!reduce){ rt += dt; L = (((L + dt) % DAY) + DAY) % DAY; }
     sy += (scrollY - sy)*(reduce ? 1 : Math.min(1, dt*6));
     const c = camIndex(sy + innerHeight*.5); ci = c;
     const st = day(L, rt);
-    follow.lerp(st.who.g.position.clone().add(new THREE.Vector3(0,.9,0)), reduce ? 1 : .06);
-    const i0 = Math.floor(c), i1 = Math.min(CAMS.length-1, i0+1), f = c - i0;
-    const A = CAMS[i0], Bc = CAMS[i1];
-    const ta = A.t ? new THREE.Vector3(...A.t) : follow, tb = Bc.t ? new THREE.Vector3(...Bc.t) : follow;
-    target.copy(ta).lerp(tb, f);
-    const hh = lerp(A.hh, Bc.hh, f), ang = lerp(A.ang, Bc.ang, f), night = lerp(A.night, Bc.night, f);
-    const D = 22; cam.position.set(target.x + Math.sin(ang)*D, target.y + D*.62, target.z + Math.cos(ang)*D); cam.lookAt(target);
+    const i0 = Math.floor(c), i1 = Math.min(CAMS.length-1, i0+1), f = c - i0, A = CAMS[i0], Bc = CAMS[i1];
+    const ang = lerp(A.ang,Bc.ang,f), bias = lerp(A.bias,Bc.bias,f), wOver = lerp(A.over,Bc.over,f), wStreet = lerp(A.street,Bc.street,f);
+    // repère de la caméra
+    const back = V3(Math.sin(ang), .62, Math.cos(ang)).normalize(), right = new THREE.Vector3().crossVectors(UP, back).normalize(), up = new THREE.Vector3().crossVectors(back, right);
+    // points à garder dans le cadre
+    const pts = [];
+    const add = (v, hgt=0) => { pts.push(v.clone()); if(hgt) pts.push(v.clone().add(V3(0,hgt,0))); };
+    add(CL.g.position, 1.75);
+    if(st.who.g.visible) add(st.who.g.position, 1.8);
+    if(st.veh.visible && Math.abs(st.veh.position.x - 1) < 8){ add(st.veh.position.clone().add(V3(-1.4,0,0)), 1.7); add(st.veh.position.clone().add(V3(1.6,0,0)), 1.7); }
+    if(st.spot) add(st.spot, .2);
+    function frameOf(list){ const ctr = new THREE.Vector3(); const bb = new THREE.Box3().setFromPoints(list); bb.getCenter(ctr);
+      let r = 0, u = 0; list.forEach(p=>{ const d = p.clone().sub(ctr); r = Math.max(r, Math.abs(d.dot(right))); u = Math.max(u, Math.abs(d.dot(up))); }); return {ctr, r, u}; }
+    let F = frameOf(pts);
+    if(wOver > 0){ const O = frameOf(OVER.concat(pts)); F = {ctr:F.ctr.clone().lerp(O.ctr,wOver), r:lerp(F.r,O.r,wOver), u:lerp(F.u,O.u,wOver)}; }
+    if(wStreet > 0){ const S = frameOf(STREET.concat(pts)); F = {ctr:F.ctr.clone().lerp(S.ctr,wStreet), r:lerp(F.r,S.r,wStreet), u:lerp(F.u,S.u,wStreet)}; }
     const w = innerWidth, h = innerHeight, a = w/h, mob = w <= 960;
-    let H = hh, ox = 0, oy = 0;
-    if(!mob){ ox = -H*a*.27; } else { H = hh * Math.max(1, .95/a) * .9; oy = -H*.36; }
+    const need = mob ? Math.max((F.u + .45)/.40, (F.r + .4)/(.9*a)) : Math.max(F.u + .7, (F.r + .6)/(.56*a));
+    const wantH = Math.max(2.6, need*bias);
+    const k = (reduce || first) ? 1 : Math.min(1, dt*2.2);
+    target.lerp(F.ctr, k); camH += (wantH - camH)*k; first = false;
+    const D = 24; cam.position.copy(target).addScaledVector(back, D); cam.lookAt(target);
+    const H = camH; let ox = 0, oy = 0;
+    if(!mob) ox = -H*a*.27; else oy = -H*.36;
     cam.left = -H*a + ox; cam.right = H*a + ox; cam.top = H + oy; cam.bottom = -H + oy; cam.updateProjectionMatrix();
-    // jour → soir
-    hemi.intensity = lerp(.8,.28,night); sun.intensity = lerp(1.35,.12,night); sun.color.copy(C('#FFE9C9')).lerp(C('#7E8CFF'), night);
-    fill.intensity = lerp(.3,.15,night);
-    roomLight.intensity = night*2.2;
-    glass.material.emissiveIntensity = night*.9;
-    const lampOn = Math.max(st.eOn, night);
-    shade.material.emissiveIntensity = st.eOn*.9; bulbM.emissiveIntensity = st.eOn*1.2; sconceLight.intensity = st.eOn*(.6 + night*1.4);
-    lampHeads.forEach(([hd,l])=>{ hd.material.emissiveIntensity = night*1.4; l.intensity = night*1.6; });
-    const sk = (k)=>skyDay[k].map((v,j)=>Math.round(lerp(v, skyNight[k][j], night)));
-    document.documentElement.style.setProperty('--sky-top', 'rgb('+sk(0).join(',')+')');
-    document.documentElement.style.setProperty('--sky-bot', 'rgb('+sk(1).join(',')+')');
+    // journée : lumière de jour constante, applique allumée une fois posée
+    shade.material.emissiveIntensity = st.eOn*.9; bulbM.emissiveIntensity = st.eOn*1.2; sconceLight.intensity = st.eOn*.6;
     R.render(scene,cam);
   }
   if(reduce){ const draw = ()=>frame(performance.now()); addEventListener('scroll', draw, {passive:true}); addEventListener('resize', draw); draw(); }
