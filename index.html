@@ -1,6 +1,10 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Weyo : publiez votre besoin à votre prix et à vos horaires. Particuliers ou professionnels de votre quartier postulent, vous choisissez.">
 <title>Weyo</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Figtree:wght@400;500;600&display=swap">
@@ -97,7 +101,11 @@ footer .brand{color:#fff;font-size:20px}
 .gl-off #gl{display:none}
 @media (prefers-reduced-motion:reduce){.btn,.links a{transition:none}.cue i::after{animation:none}}
 </style>
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
 
+<div id="diag" hidden style="position:fixed;left:12px;bottom:12px;z-index:50;max-width:min(420px,calc(100vw - 24px));background:#141A4A;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:10px 14px;border-radius:12px"></div>
 <canvas id="gl" aria-label="Illustration animée : une journée dans un appartement où des prestataires Weyo se succèdent"></canvas>
 
 <nav class="top" aria-label="Navigation principale">
@@ -193,9 +201,12 @@ footer .brand{color:#fff;font-size:20px}
   addEventListener('resize', ()=>{ measure(); navState(); });
   measure(); navState(); addEventListener('load', measure); if(document.fonts) document.fonts.ready.then(measure);
 
-  if(typeof THREE === 'undefined'){ document.documentElement.classList.add('gl-off'); return; }
+  const diag = msg => { const d = $('#diag'); d.textContent = 'Animation 3D indisponible : ' + msg; d.hidden = false; };
+  if(typeof THREE === 'undefined'){ document.documentElement.classList.add('gl-off'); diag('la bibliothèque three.js ne s’est pas chargée (connexion, bloqueur de publicité ou réseau d’entreprise).'); return; }
   try{
   const cv = $('#gl');
+  const testGL = document.createElement('canvas').getContext('webgl');
+  if(!testGL) throw new Error('WebGL est désactivé dans ce navigateur (accélération matérielle coupée ?).');
   const R = new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true});
   R.setPixelRatio(Math.min(devicePixelRatio,1.75)); R.outputEncoding = THREE.sRGBEncoding;
   R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; R.setClearColor(0,0);
@@ -452,7 +463,8 @@ footer .brand{color:#fff;font-size:20px}
   /* ---------- Une journée : 6 visites de 20 s ---------- */
   const VISIT = 20, DAY = VISIT*WORK.length;
   function day(L, rt){
-    const vi = Math.min(WORK.length-1, Math.floor(L/VISIT)), p = (L - vi*VISIT)/VISIT;
+    if(!(L >= 0)) L = 0;
+    const vi = Math.max(0, Math.min(WORK.length-1, Math.floor(L/VISIT))), p = clamp01((L - vi*VISIT)/VISIT);
     const done = k => vi > k ? 1 : vi < k ? 0 : null;
     const W = WORK[vi], who = W.who, isL = W.key === 'livreur';
     WORK.forEach((w,k)=>{ w.who.g.visible = k===vi; if(w.carry) w.carry.visible = k===vi; w.veh.visible = k===vi; });
@@ -601,8 +613,8 @@ footer .brand{color:#fff;font-size:20px}
   const target = new THREE.Vector3();
   const skyDay = [[248,241,230],[237,224,204]], skyNight = [[44,52,104],[24,28,64]];
   function frame(now){
-    const dt = Math.min(.05,(now-last)/1000); last = now;
-    if(!reduce){ rt += dt; L = (L + dt) % DAY; }
+    const dt = Math.max(0, Math.min(.05,(now-last)/1000)) || 0; last = Math.max(last, now);
+    if(!reduce){ rt += dt; L = (((L + dt) % DAY) + DAY) % DAY; }
     sy += (scrollY - sy)*(reduce ? 1 : Math.min(1, dt*6));
     const c = camIndex(sy + innerHeight*.5); ci = c;
     const st = day(L, rt);
@@ -632,8 +644,10 @@ footer .brand{color:#fff;font-size:20px}
   }
   if(reduce){ const draw = ()=>frame(performance.now()); addEventListener('scroll', draw, {passive:true}); addEventListener('resize', draw); draw(); }
   else (function loop(now){ frame(now); requestAnimationFrame(loop); })(performance.now());
-  }catch(err){ document.documentElement.classList.add('gl-off'); console.error(err); }
+  }catch(err){ document.documentElement.classList.add('gl-off'); console.error(err); diag(err && err.message ? err.message : String(err)); }
+  addEventListener('error', e=>{ if(String(e.message||'').length) diag(e.message); });
 })();
 </script>
 
-</body></html>
+</body>
+</html>
