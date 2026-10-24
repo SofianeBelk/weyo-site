@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Weyo : publiez votre besoin, à votre prix et à vos horaires. Particuliers ou professionnels de votre quartier postulent, vous choisissez.">
+<title>Weyo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout : page blanche et lumineuse. Une scène 3D fixe (les rubans du logo et la boule « vous ») vit d'un côté,
+   le texte de l'autre, et la scène change de figure à chaque chapitre. Univers unique, clair, assumé. */
+:root{
+  color-scheme:light;
+  --white:#FFFFFF;
+  --mist:#F4F7FF;        /* fond bleuté très léger */
+  --ink:#0B1033;         /* bleu nuit, texte */
+  --ink-2:#4A5178;       /* texte secondaire */
+  --line:#E2E7F5;
+  --indigo:#3B3FFF; --blue:#1E8BFF; --cyan:#22D3EE; --mint:#3FE39A;
+  --grad:linear-gradient(100deg,#3B3FFF 0%,#1E8BFF 38%,#22D3EE 68%,#5EF0A8 100%);
+  --display:"Sora","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Figtree",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--white)}
+body{background:var(--white);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:rgba(255,255,255,.8)}
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(60vw 50vw at 85% 10%,rgba(34,211,238,.10),transparent 70%),
+  radial-gradient(50vw 40vw at 5% 90%,rgba(59,63,255,.07),transparent 70%),var(--white)}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none}
+main,nav.top,footer{position:relative;z-index:2}
+h1,h2,h3{margin:0;font-family:var(--display);letter-spacing:-.035em;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:4px;border-radius:8px}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Navigation */
+nav.top{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:20;padding-top:14px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:18px;height:60px;padding-inline:18px 10px;border-radius:999px;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border:1px solid rgba(226,231,245,.9);box-shadow:0 8px 30px -18px rgba(30,40,120,.35)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.04em;text-decoration:none}
+.mark{width:28px;height:28px;position:relative}
+.mark::before{content:"";position:absolute;left:0;right:6px;bottom:2px;height:14px;border-radius:8px;background:var(--grad);clip-path:polygon(0 0,22% 100%,50% 30%,78% 100%,100% 0,88% 0,78% 62%,50% 0,22% 62%,12% 0)}
+.mark::after{content:"";position:absolute;right:0;top:2px;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#5EF0A8,#22D3EE)}
+.links{display:flex;gap:28px;font-size:14.5px;color:var(--ink-2)}
+.links a{text-decoration:none;transition:color .2s}
+.links a:hover{color:var(--ink)}
+.btn{font:600 15.5px var(--body);text-decoration:none;border-radius:999px;padding:13px 24px;display:inline-flex;align-items:center;gap:10px;border:1px solid transparent;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.btn.main{background:var(--ink);color:#fff;box-shadow:0 10px 30px -12px rgba(11,16,51,.55)}
+.btn.main:hover{transform:translateY(-2px);box-shadow:0 16px 36px -12px rgba(30,139,255,.6)}
+.btn.soft{background:#fff;border-color:var(--line);color:var(--ink)}
+.btn.soft:hover{border-color:var(--blue)}
+.btn.sm{padding:10px 18px;font-size:14px}
+@media (max-width:860px){.links{display:none}}
+
+/* Chapitres */
+.ch{min-height:100vh;display:flex;align-items:center;padding-block:130px}
+.ch .wrap{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.ch.r .txt{grid-column:2}
+.txt{display:grid;gap:22px;align-content:center;max-width:560px;min-width:0}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;justify-self:start;font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--blue);background:rgba(30,139,255,.08);border:1px solid rgba(30,139,255,.18);border-radius:999px;padding:6px 14px}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--grad)}
+.txt h2{font-size:clamp(32px,5.2vw,72px);font-weight:800;line-height:1.02}
+.txt > p{font-size:clamp(18px,1.55vw,20px);color:var(--ink-2);max-width:44ch}
+@media (max-width:860px){
+  .ch{min-height:0;padding-block:82vh 40px;align-items:flex-start}
+  .ch::before{content:attr(data-label);position:absolute;left:0;right:0;margin-top:-16vh;text-align:center;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+  .ch{position:relative}
+  .ch .wrap{grid-template-columns:1fr}
+  .ch.r .txt{grid-column:1}
+  .txt{background:rgba(255,255,255,.97);box-shadow:0 -20px 50px -30px rgba(30,40,120,.25);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:26px;padding:26px}
+}
+
+/* Accueil */
+.hero{min-height:100vh;display:flex;align-items:center;padding-block:140px 80px}
+.hero .wrap{width:100%;display:grid;grid-template-columns:1.05fr .95fr;gap:40px}
+.hero .txt{max-width:640px;gap:28px}
+.hero h1{font-size:clamp(40px,7.6vw,112px);font-weight:800;line-height:.98;letter-spacing:-.05em}
+.hero h1 > span{display:block}
+.hero .lead{font-size:clamp(18px,1.7vw,21px);color:var(--ink-2);max-width:40ch}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.avail{display:flex;flex-wrap:wrap;gap:8px;font-size:13.5px;color:var(--ink-2)}
+.avail span{border:1px solid var(--line);background:rgba(255,255,255,.8);border-radius:999px;padding:5px 12px}
+@media (max-width:860px){.hero{min-height:0;padding-block:66vh 40px;align-items:flex-start}.hero .wrap{grid-template-columns:1fr}.hero .txt{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0}}
+
+/* Piliers */
+.pillars{display:grid;gap:12px}
+.pillar{display:grid;grid-template-columns:52px 1fr;gap:16px;align-items:start;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px;padding:18px 20px;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s}
+.pillar:hover{transform:translateX(6px);border-color:rgba(30,139,255,.4);box-shadow:0 18px 40px -24px rgba(30,60,200,.45)}
+.pillar .ic{width:52px;height:52px;border-radius:16px;background:var(--grad);display:grid;place-items:center}
+.pillar .ic svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pillar h3{font-size:21px;font-weight:700}
+.pillar p{font-size:16px;color:var(--ink-2)}
+@media (max-width:860px){.pillar{background:#fff}}
+
+/* Trois gestes */
+.gestes{display:grid;gap:0;counter-reset:g}
+.geste{display:grid;grid-template-columns:64px 1fr;gap:18px;padding:20px 0;border-bottom:1px solid var(--line);counter-increment:g}
+.geste:first-child{border-top:1px solid var(--line)}
+.geste::before{content:counter(g);font-family:var(--display);font-weight:800;font-size:44px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.geste h3{font-size:24px;font-weight:700}
+.geste p{font-size:16.5px;color:var(--ink-2)}
+
+/* Listes */
+.ticks{display:grid;gap:12px;padding:0;margin:0}
+.ticks li{list-style:none;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;font-size:17px}
+.ticks li::before{content:"";width:22px;height:22px;margin-top:2px;border-radius:50%;background:var(--grad)}
+.ticks li{position:relative}
+.ticks li::after{content:"";position:absolute;left:7px;top:8px;width:8px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg)}
+
+/* Contact */
+.contact{display:grid;gap:12px}
+.card{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px;padding:18px 22px;transition:border-color .3s,box-shadow .3s}
+.card:hover{border-color:rgba(30,139,255,.4);box-shadow:0 18px 40px -26px rgba(30,60,200,.45)}
+.card small{grid-column:1;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.card .val{grid-column:1;font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere;text-decoration:none}
+.card .val.todo{font-family:var(--body);font-size:15px;font-weight:500;color:var(--ink-2);letter-spacing:0}
+.card .copy,.card .tag{grid-column:2;grid-row:1 / span 2}
+.copy{font:600 13px var(--body);color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+.copy:hover{border-color:var(--blue)}
+.tag{font-size:12px;color:var(--ink-2);border:1.5px dashed var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+
+footer{border-top:1px solid var(--line);background:rgba(255,255,255,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-block:28px;font-size:13.5px;color:var(--ink-2)}
+
+.gl-off #gl{display:none}
+@media (max-width:420px){.brand{font-size:19px}.bar{height:54px;padding-inline:14px 7px}.btn.sm{padding:9px 14px;font-size:13px}.card{grid-template-columns:1fr}.card .val{font-size:18px}.card .copy,.card .tag{grid-column:1;grid-row:auto;justify-self:start;margin-top:6px}.txt{padding:20px}.pillar{grid-template-columns:44px 1fr;padding:16px}.pillar .ic{width:44px;height:44px;border-radius:13px}.geste{grid-template-columns:44px 1fr}.geste::before{font-size:36px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<nav class="top" aria-label="Navigation principale">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#accueil"><span class="mark" aria-hidden="true"></span>weyo</a>
+      <div class="links"><a href="#vous">Vous décidez</a><a href="#gestes">Comment ça marche</a><a href="#valider">Paiement</a><a href="#prestataires">Prestataires</a></div>
+      <a class="btn main sm" href="#contact">Nous contacter</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero" id="accueil" data-stage="0">
+    <div class="wrap"><div class="txt">
+      <span class="eyebrow"><i></i>Particuliers et professionnels</span>
+      <h1><span>Ici, c'est</span><span><span class="g">vous</span> qui</span><span>choisissez.</span></h1>
+      <p class="lead">Publiez ce dont vous avez besoin, à votre prix et à vos horaires. Particuliers ou professionnels de votre quartier postulent, et vous gardez le dernier mot du début à la fin.</p>
+      <div class="cta"><a class="btn main" href="#vous">Découvrir Weyo</a><a class="btn soft" href="#contact">Nous contacter</a></div>
+      <div class="avail"><span>iPhone</span><span>Android</span><span>Français · English</span></div>
+    </div></div>
+  </section>
+
+  <section class="ch" id="vous" data-label="Vous décidez" data-stage="1">
+    <div class="wrap"><div class="txt">
+      <span class="eyebrow"><i></i>Vous décidez</span>
+      <h2>Tout tourne <span class="g">autour de vous.</span></h2>
+      <p>Sur Weyo, les règles du jeu, c'est vous qui les posez.</p>
+      <div class="pillars">
+        <div class="pillar"><div class="ic"><svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></div><div><h3>Votre prix</h3><p>Vous indiquez ce que vaut la tâche. Les candidats postulent à votre prix.</p></div></div>
+        <div class="pillar"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><div><h3>Votre moment</h3><p>Proposez jusqu'à cinq disponibilités. On s'adapte à votre agenda, pas l'inverse.</p></div></div>
+        <div class="pillar"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><div><h3>Votre personne</h3><p>Comparez les profils, les avis et les notes. Vous choisissez qui vient chez vous.</p></div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="ch r" id="gestes" data-label="Votre choix" data-stage="2">
+    <div class="wrap"><div class="txt">
+      <span class="eyebrow"><i></i>Comment ça marche</span>
+      <h2>Trois gestes, <span class="g">et c'est réglé.</span></h2>
+      <div class="gestes">
+        <div class="geste"><div><h3>Publiez</h3><p>Décrivez votre besoin, fixez votre prix, proposez vos disponibilités.</p></div></div>
+        <div class="geste"><div><h3>Choisissez</h3><p>Les candidats arrivent. Vous retenez celui ou celle qui vous plaît.</p></div></div>
+        <div class="geste"><div><h3>Profitez</h3><p>La tâche est faite, vous validez, et vous partagez votre avis.</p></div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="ch" id="valider" data-label="Le client est roi" data-stage="3">
+    <div class="wrap"><div class="txt">
+      <span class="eyebrow"><i></i>Le paiement</span>
+      <h2>Vous validez. <span class="g">Le paiement suit.</span></h2>
+      <p>À la réservation, votre paiement est simplement mis de côté. Il n'est versé qu'une fois la tâche terminée. Vous profitez du service l'esprit libre.</p>
+      <ul class="ticks">
+        <li>Paiement sécurisé par Stripe</li>
+        <li>Vous échangez dans l'app, vos coordonnées restent privées jusqu'à la réservation</li>
+        <li>Weyo vous accompagne jusqu'au bout si quelque chose ne va pas</li>
+      </ul>
+    </div></div>
+  </section>
+
+  <section class="ch r" id="prestataires" data-label="Particuliers et pros" data-stage="4">
+    <div class="wrap"><div class="txt">
+      <span class="eyebrow"><i></i>Particulier ou professionnel ?</span>
+      <h2>Faites-le <span class="g">à votre façon.</span></h2>
+      <p>Que vous rendiez service de temps en temps ou que ce soit votre métier, trouvez des missions près de chez vous, sur les créneaux qui vous arrangent. Le paiement est sécurisé dès la réservation et vous est versé à la fin de la tâche, sans avoir à relancer.</p>
+      <ul class="ticks">
+        <li>Des clients dans votre quartier</li>
+        <li>Vous choisissez les créneaux qui vous conviennent</li>
+        <li>Un versement automatique une fois la tâche terminée</li>
+        <li>Votre sérieux mis en valeur par les avis</li>
+        <li>Une vitrine pour votre activité, sans démarchage</li>
+      </ul>
+    </div></div>
+  </section>
+
+  <section class="ch" id="contact" data-label="Contact" data-stage="5">
+    <div class="wrap"><div class="txt">
+      <span class="eyebrow"><i></i>Contact</span>
+      <h2>Parlons <span class="g">de vous.</span></h2>
+      <p>Particulier, professionnel, partenaire ou investisseur : écrivez-nous, on vous répond.</p>
+      <div class="contact" id="contactCards"></div>
+    </div></div>
+  </section>
+</main>
+<footer><div class="wrap"><span>© 2026 Weyo</span><span>contact@weyo.com</span></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ===== Coordonnées : remplissez ces champs ===== */
+const CONTACT = {
+  email: "contact@weyo.com",
+  telephone: ""   // vide = « Bientôt disponible »
+};
+
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = s => document.querySelector(s);
+
+  /* ---------- Contact ---------- */
+  [{k:'email',l:'E-mail'},{k:'telephone',l:'Téléphone'}].forEach(c=>{
+    const v = (CONTACT[c.k]||'').trim().replace(/[<>"]/g,''), el = document.createElement('div'); el.className='card';
+    el.innerHTML = '<small>'+c.l+'</small>' + (v
+      ? (c.k==='site' ? '<a class="val" href="'+v+'" target="_blank" rel="noopener">'+v.replace(/^https?:\/\//,'')+'</a>' : '<span class="val">'+v+'</span>') + '<button class="copy" type="button">Copier</button>'
+      : '<span class="val todo">Bientôt disponible</span><span class="tag">Bientôt</span>');
+    const b = el.querySelector('.copy');
+    if(b) b.onclick = ()=> navigator.clipboard.writeText(v).then(()=>{b.textContent='Copié';setTimeout(()=>b.textContent='Copier',1500);}).catch(()=>{const r=document.createRange();r.selectNodeContents(el.querySelector('.val'));const s=getSelection();s.removeAllRanges();s.addRange(r);});
+    $('#contactCards').appendChild(el);
+  });
+
+  if(typeof THREE === 'undefined'){ document.documentElement.classList.add('gl-off'); return; }
+  try{
+  const cv = $('#gl');
+  const R = new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true});
+  R.setPixelRatio(Math.min(devicePixelRatio,2)); R.setClearColor(0xffffff,0);
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(36,1,.1,60); cam.position.set(0,0,8.2);
+  const world = new THREE.Group(); scene.add(world);
+  const C1 = new THREE.Color('#3B3FFF'), C2 = new THREE.Color('#1E8BFF'), C3 = new THREE.Color('#22D3EE'), C4 = new THREE.Color('#5EF0A8');
+
+  /* ---------- Rubans : un tube calculé entièrement dans le shader ---------- */
+  const ribVS = `
+    uniform float uTime,uMorph,uShow,uR,uRing,uArc,uSpike,uPhase,uK,uWs;
+    uniform vec3 uS,uTilt,uOff,uWo;
+    varying vec3 vN; varying vec3 vV; varying float vU;
+    const float PI = 3.14159265;
+    mat3 rot(vec3 a){
+      float cx=cos(a.x),sx=sin(a.x),cy=cos(a.y),sy=sin(a.y),cz=cos(a.z),sz=sin(a.z);
+      mat3 X=mat3(1.,0.,0.,0.,cx,sx,0.,-sx,cx), Y=mat3(cy,0.,-sy,0.,1.,0.,sy,0.,cy), Z=mat3(cz,sz,0.,-sz,cz,0.,0.,0.,1.);
+      return Z*Y*X;
+    }
+    vec3 W(float u){
+      float x = mix(-1.75,1.75,u);
+      float q = (u-.5)/.13;
+      float y = .74*cos(4.*PI*u) - .34*exp(-q*q);
+      float z = .22*sin(2.*PI*u + uTime*.5 + uK);
+      y += .045*sin(uTime*1.1 + u*7. + uK*1.7);
+      return vec3(x,y,z)*uWs + uWo;
+    }
+    vec3 O(float u){
+      float a = u*uArc + uTime*(.32+.07*uK) + uPhase;
+      vec3 p = vec3(cos(a)*uRing, .1*sin(a*2.+uK*2.) + uSpike*pow(abs(sin(a*2.5)),4.), sin(a)*uRing);
+      return uS + uOff + rot(uTilt)*p;
+    }
+    vec3 C(float u){ return mix(W(u), O(u), uMorph); }
+    void main(){
+      float u = uv.x, th = uv.y*2.*PI, e = .0025;
+      vec3 c = C(u);
+      vec3 T = normalize(C(min(u+e,1.)) - C(max(u-e,0.)));
+      vec3 ref = abs(T.y) < .92 ? vec3(0.,1.,0.) : vec3(1.,0.,0.);
+      vec3 B = normalize(cross(T,ref)); vec3 N = cross(B,T);
+      float rad = uR*uShow*pow(max(sin(PI*u),0.),.33);
+      vec3 n = cos(th)*N + sin(th)*B;
+      vec4 wp = modelMatrix*vec4(c + n*rad, 1.);
+      vN = normalize(mat3(modelMatrix)*n); vV = normalize(cameraPosition - wp.xyz); vU = u;
+      gl_Position = projectionMatrix*viewMatrix*wp;
+    }`;
+  const ribFS = `
+    uniform vec3 c1,c2,c3,c4; uniform float uHue;
+    varying vec3 vN; varying vec3 vV; varying float vU;
+    vec3 grad(float t){ t = clamp(t,0.,1.);
+      return t<.34 ? mix(c1,c2,t/.34) : t<.68 ? mix(c2,c3,(t-.34)/.34) : mix(c3,c4,(t-.68)/.32); }
+    void main(){
+      vec3 n = normalize(vN), v = normalize(vV);
+      if(!gl_FrontFacing) n = -n;
+      vec3 base = grad(vU*.92 + uHue);
+      vec3 L = normalize(vec3(.35,.85,.65));
+      float dif = .62 + .38*max(dot(n,L),0.);
+      float fres = pow(1. - max(dot(n,v),0.), 2.4);
+      float spec = pow(max(dot(reflect(-L,n),v),0.), 48.);
+      float spec2 = pow(max(dot(reflect(-normalize(vec3(-.6,.2,.8)),n),v),0.), 18.);
+      vec3 col = base*dif;
+      col = mix(col, vec3(.86,.97,1.), fres*.55);
+      col += spec*.75 + spec2*.18;
+      gl_FragColor = vec4(col, 1.);
+    }`;
+  const ribGeo = new THREE.PlaneGeometry(1,1,320,32);
+  const ribs = [];
+  for(let k=0;k<5;k++){
+    const U = { uTime:{value:0}, uMorph:{value:0}, uShow:{value:k?0:1}, uR:{value:.27}, uRing:{value:1.3}, uArc:{value:Math.PI*1.7},
+      uSpike:{value:0}, uPhase:{value:k*1.25}, uK:{value:k}, uWs:{value:1}, uS:{value:new THREE.Vector3()}, uTilt:{value:new THREE.Vector3()},
+      uOff:{value:new THREE.Vector3()}, uWo:{value:new THREE.Vector3()}, uHue:{value:0},
+      c1:{value:C1}, c2:{value:C2}, c3:{value:C3}, c4:{value:C4} };
+    const m = new THREE.Mesh(ribGeo, new THREE.ShaderMaterial({uniforms:U, vertexShader:ribVS, fragmentShader:ribFS, side:THREE.DoubleSide}));
+    m.frustumCulled = false; world.add(m); ribs.push(U);
+  }
+
+  /* ---------- La boule : vous ---------- */
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(1,64,64), new THREE.ShaderMaterial({
+    uniforms:{ uTime:{value:0} },
+    vertexShader:`varying vec3 vN; varying vec3 vV; varying vec3 vP;
+      void main(){ vec4 wp = modelMatrix*vec4(position,1.); vN = normalize(mat3(modelMatrix)*normal); vV = normalize(cameraPosition-wp.xyz); vP = position; gl_Position = projectionMatrix*viewMatrix*wp; }`,
+    fragmentShader:`uniform float uTime; varying vec3 vN; varying vec3 vV; varying vec3 vP;
+      void main(){ vec3 n = normalize(vN), v = normalize(vV);
+        float t = clamp(vP.y*.5+.5 + .08*sin(uTime+vP.x*3.),0.,1.);
+        vec3 base = mix(vec3(.13,.83,.93), vec3(.37,.94,.66), t);
+        vec3 L = normalize(vec3(.35,.85,.65));
+        float dif = .7+.3*max(dot(n,L),0.);
+        float fres = pow(1.-max(dot(n,v),0.),2.2);
+        float spec = pow(max(dot(reflect(-L,n),v),0.),60.);
+        vec3 col = base*dif; col = mix(col, vec3(.9,1.,.97), fres*.6); col += spec*.8;
+        gl_FragColor = vec4(col,1.); }`}));
+  world.add(ball);
+  function radial(stops,size=256){ const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); const gr=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2); stops.forEach(s=>gr.addColorStop(s[0],s[1])); g.fillStyle=gr; g.fillRect(0,0,size,size); return new THREE.CanvasTexture(c); }
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({map:radial([[0,'rgba(94,240,168,.55)'],[.35,'rgba(34,211,238,.22)'],[1,'rgba(34,211,238,0)']]), depthWrite:false}));
+  world.add(halo);
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial({map:radial([[0,'rgba(20,30,110,.20)'],[.5,'rgba(20,30,110,.07)'],[1,'rgba(20,30,110,0)']]), transparent:true, depthWrite:false}));
+  shadow.rotation.x = -Math.PI/2; scene.add(shadow);
+
+  /* ---------- Figures par chapitre ---------- */
+  const v3 = (x,y,z)=>[x,y,z];
+  const rib = o => Object.assign({m:0, show:0, R:.12, ring:1.3, arc:Math.PI*1.7, spike:0, tilt:v3(0,0,0), off:v3(0,0,0), ws:1, wo:v3(0,0,0), hue:0}, o);
+  const orbit = k => rib({m:1, show:1, R:.11, ring:1.15+k*.17, tilt:v3(.9*Math.sin(k*1.7)+.3, k*1.26, .55*Math.cos(k*2.1)), hue:k*.04});
+  const logo = side => ({gx:side, ball:[1.42,1.28,0,.36], rotY:0, rib:[rib({show:1, R:.28}), rib({}), rib({}), rib({}), rib({})]});
+  const STAGES = [
+    logo(1.9),
+    {gx:1.9, ball:[0,0,0,.5], rotY:0, rib:[0,1,2,3,4].map(orbit)},
+    {gx:-1.9, ball:[0,-.1,0,.55], rotY:0, rib:[rib({m:1, show:1, R:.15, ring:.82, tilt:v3(1.15,.2,.35)}),
+      ...[1,2,3,4].map(k=>Object.assign(orbit(k),{show:0, ring:2.8}))]},
+    {gx:1.9, ball:[0,-.35,0,.6], rotY:0, rib:[rib({m:1, show:1, R:.1, ring:.5, arc:Math.PI*2, spike:.28, off:v3(0,.78,0), tilt:v3(.18,0,.05)}),
+      ...[1,2,3,4].map(k=>Object.assign(orbit(k),{show:0, ring:.2}))]},
+    {gx:-1.9, ball:[2.05,1.25,0,.22], rotY:0, rib:[0,1,2,3,4].map(k=>rib({show:1, R:.11, ws:.95, wo:v3((k-2)*.1,(k-2)*.3,-(Math.abs(k-2))*.35), hue:k*.05}))},
+    logo(1.9)
+  ];
+  const lerp = (a,b,t)=> typeof a==='number' ? a+(b-a)*t : Array.isArray(a) ? a.map((x,i)=>lerp(x,b[i],t)) : Object.fromEntries(Object.keys(a).map(k=>[k,lerp(a[k],b[k],t)]));
+
+  /* ---------- Défilement et souris ---------- */
+  const secs = [...document.querySelectorAll('[data-stage]')];
+  let centers = [];
+  const measure = ()=>{ centers = secs.map(s=>{ const r=s.getBoundingClientRect(); return mobile() ? r.top+scrollY+innerHeight*.5 : r.top+scrollY+r.height/2; }); };
+  function stageAt(y){
+    let k=0; while(k<centers.length-1 && y>centers[k+1]) k++;
+    let t = k<centers.length-1 ? (y-centers[k])/(centers[k+1]-centers[k]) : 0;
+    if(y<centers[0]) t=0; t = Math.min(1,Math.max(0,(t-.2)/.6)); t = t*t*(3-2*t);
+    const a = STAGES[+secs[k].dataset.stage], b = STAGES[+secs[Math.min(k+1,secs.length-1)].dataset.stage];
+    return lerp(a,b,t);
+  }
+  let mx=0, my=0, tmx=0, tmy=0, sy=scrollY;
+  addEventListener('pointermove', e=>{ tmx = e.clientX/innerWidth*2-1; tmy = -(e.clientY/innerHeight*2-1); });
+  const mobile = ()=> innerWidth < 860;
+  function size(){ const w=innerWidth, h=innerHeight; R.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix(); measure(); }
+  addEventListener('resize', size); size(); addEventListener('load', measure); if(document.fonts) document.fonts.ready.then(measure);
+
+  const t0 = performance.now();
+  function frame(now){
+    const t = reduce ? 2 : (now-t0)/1000;
+    const e = reduce ? 1 : .08;
+    sy += (scrollY-sy)*e; if(Math.abs(scrollY-sy)<.5) sy=scrollY;
+    mx += (tmx-mx)*.06; my += (tmy-my)*.06;
+    const s = stageAt(sy+innerHeight/2);
+    const mob = mobile();
+    world.position.set(mob ? 0 : s.gx, mob ? .62 : 0, 0);
+    world.scale.setScalar(mob ? Math.min(.78, cam.aspect*1.35) : 1);
+    world.rotation.y = mx*.28 + (reduce?0:Math.sin(t*.25)*.06);
+    world.rotation.x = -my*.14;
+    const bx = s.ball[0] + mx*.12, by = s.ball[1] + my*.1 + (reduce?0:Math.sin(t*1.3)*.05), bz = s.ball[2];
+    ball.position.set(bx,by,bz); ball.scale.setScalar(s.ball[3]);
+    ball.material.uniforms.uTime.value = t;
+    halo.position.set(bx,by,bz-.05); halo.scale.setScalar(s.ball[3]*5.2);
+    shadow.position.set(world.position.x, world.position.y - 1.85*world.scale.x, 0);
+    shadow.scale.set(5.2*world.scale.x, 2.2*world.scale.x, 1);
+    ribs.forEach((U,k)=>{ const r = s.rib[k];
+      U.uTime.value = t; U.uMorph.value = r.m; U.uShow.value = r.show; U.uR.value = r.R; U.uRing.value = r.ring; U.uArc.value = r.arc;
+      U.uSpike.value = r.spike; U.uWs.value = r.ws; U.uHue.value = r.hue;
+      U.uS.value.set(bx,by,bz); U.uTilt.value.set(r.tilt[0],r.tilt[1],r.tilt[2]); U.uOff.value.set(r.off[0],r.off[1],r.off[2]); U.uWo.value.set(r.wo[0],r.wo[1],r.wo[2]);
+    });
+    R.render(scene,cam);
+  }
+  if(reduce){ const draw=()=>frame(performance.now()); addEventListener('scroll',draw,{passive:true}); addEventListener('resize',draw); draw(); }
+  else (function loop(now){ frame(now); requestAnimationFrame(loop); })(performance.now());
+  }catch(err){ document.documentElement.classList.add('gl-off'); console.error(err); }
+})();
+</script>
+
+</body>
+</html>
